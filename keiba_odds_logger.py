@@ -1,10 +1,12 @@
 # 南関東 締切前オッズの自動記録（GitHub Actions用）
 # 各レースの発走30分前〜1分前まで、2分おきに単勝オッズを keiba_odds/日付.csv に保存します。
-import os, re, time, json, subprocess
+import os, re, time, json, shutil, subprocess, functools
 import datetime as dt
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup
+
+print = functools.partial(print, flush=True)
 
 H = {'User-Agent': 'Mozilla/5.0 (personal research, low rate)'}
 JST = dt.timezone(dt.timedelta(hours=9))
@@ -69,17 +71,32 @@ def fetch_odds(rid):
     return out
 
 
+def git(*args):
+    return subprocess.run(['git', *args], capture_output=True, text=True)
+
+
 def commit(msg):
-    subprocess.run(['git', 'add', OUT_DIR])
-    r = subprocess.run(['git', '-c', 'user.name=github-actions', '-c', 'user.email=actions@github.com',
-                        'commit', '-m', msg], capture_output=True)
-    if r.returncode != 0:
+    if not os.path.exists(OUT):
         return
+    tmp = '/tmp/keiba_odds_tmp.csv'
+    shutil.copy(OUT, tmp)
+    git('config', 'user.name', 'github-actions')
+    git('config', 'user.email', 'actions@github.com')
     for _ in range(3):
-        subprocess.run(['git', 'pull', '--rebase', '--autostash'])
-        if subprocess.run(['git', 'push']).returncode == 0:
+        git('rebase', '--abort')
+        git('fetch', 'origin', 'main')
+        git('checkout', '-f', '-B', 'main', 'origin/main')
+        os.makedirs(OUT_DIR, exist_ok=True)
+        shutil.copy(tmp, OUT)
+        git('add', OUT)
+        r = git('commit', '-m', msg)
+        if r.returncode != 0 and 'nothing to commit' in (r.stdout + r.stderr):
+            return
+        if git('push', 'origin', 'main').returncode == 0:
+            print(f'{now():%H:%M} GitHubに保存しました')
             return
         time.sleep(10)
+    print('保存に失敗しました（次の回にもう一度試します）')
 
 
 # ---------- 今日のレースと発走時刻 ----------
