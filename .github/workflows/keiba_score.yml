@@ -1,0 +1,27 @@
+name: keiba-score
+
+on:
+  schedule:
+    - cron: '45 12 * * *'   # 日本時間 21:45（最終レースのあと）
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  score:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests beautifulsoup4 pandas gdown
+      - run: |
+          python -c "import gdown; gdown.download_folder(id='1jxqb0oLQ2deF_TLHyO_A1LbajF2K_dxV', output='drive_code', quiet=True)" || echo "ドライブのコードが取れなかったので、GitHubのコードで動かします"
+          cp drive_code/keiba_score.py . || true
+          python keiba_score.py
+        env:
+          GH_TOKEN: ${{ github.token }}
