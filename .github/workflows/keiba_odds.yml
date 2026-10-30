@@ -1,0 +1,30 @@
+name: keiba-odds
+
+on:
+  schedule:
+    - cron: '20 0 * * *'   # 日本時間 9:20（昼の開催）
+    - cron: '0 5 * * *'    # 日本時間 14:00（ナイター開催。昼の回が終わるまで待ってから始まる）
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: keiba-odds
+  cancel-in-progress: false
+
+jobs:
+  log:
+    runs-on: ubuntu-latest
+    timeout-minutes: 400
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests beautifulsoup4 pandas
+      - run: pip install gdown
+      - run: |
+          python -c "import gdown; gdown.download_folder(id='1jxqb0oLQ2deF_TLHyO_A1LbajF2K_dxV', output='drive_code', quiet=True)" || echo "ドライブのコードが取れなかったので、GitHubのコードで動かします"
+          cp drive_code/keiba_odds_logger.py . || true
+          python keiba_odds_logger.py
