@@ -1,0 +1,31 @@
+name: boat-live
+on:
+  schedule:
+    - cron: '50 22 * * *'
+    - cron: '50 2 * * *'
+    - cron: '20 7 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/cache@v4
+        with:
+          path: k_all
+          key: boat-k-${{ github.run_id }}
+          restore-keys: boat-k-
+      - run: pip install requests pandas numpy gdown
+      - run: which 7z || (sudo apt-get update -qq && sudo apt-get install -y -qq p7zip-full)
+      - run: |
+          python -c "import gdown; gdown.download_folder(id='1FyZBGfkYQ1YU0P8IDAx9jGek0Ii8uh1p', output='boat_code', quiet=True)"
+          python boat_code/boat_live.py
+        env:
+          GH_TOKEN: ${{ github.token }}
