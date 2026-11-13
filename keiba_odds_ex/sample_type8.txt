@@ -1,0 +1,2 @@
+type=8
+{"status":"OK","odds_status":"real","ary_odds":{"01":{"Odds":"42.6","Ninki":"8"},"02":{"Odds":"72.7","Ninki":"12"},"03":{"Odds":"11.3","Ninki":"4"},"04":{"Odds":"47.7","Ninki":"9"},"05":{"Odds":"54.9","Ninki":"11"},"06":{"Odds":"18.3","Ninki":"5"},"07":{"Odds":"7.3","Ninki":"2"},"08":{"Odds":"40.4","Ninki":"7"},"09":{"Odds":"50.2","Ninki":"10"},"10":{"Odds":"37.2","Ninki":"6"},"11":{"Odds":"8.4","Ninki":"3"},"12":{"Odds":"1.4","Ninki":"1"}}}
