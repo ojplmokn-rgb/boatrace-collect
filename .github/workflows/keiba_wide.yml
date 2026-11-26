@@ -2,8 +2,15 @@ name: keiba-wide
 
 on:
   schedule:
-    - cron: '20 0 * * *'   # 日本時間 9:20（昼の開催）
-    - cron: '0 5 * * *'    # 日本時間 14:00（ナイター開催。昼の回が終わるまで待ってから始まる）
+    - cron: '20 0 * * *'
+    - cron: '20 1 * * *'
+    - cron: '20 2 * * *'
+    - cron: '20 3 * * *'
+    - cron: '0 5 * * *'
+    - cron: '0 6 * * *'
+    - cron: '0 7 * * *'
+    - cron: '0 8 * * *'
+    - cron: '0 9 * * *'
   workflow_dispatch:
 
 permissions:
